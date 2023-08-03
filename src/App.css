@@ -1,3 +1,9 @@
+.all {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+}
+
 .header {
     background-color: #275d38;
     height: 70px;
@@ -7,7 +13,6 @@
     display: flex;
     align-items: center;
     height: 100%;
-    /* justify-content: space-evenly; */
 
     margin-left: 163px;
     margin-right: 7%;
@@ -34,7 +39,174 @@
 
 .DBWrapper {
     width: 80%;
-    margin: 0 auto;
+    margin: 0 auto 50px auto;
+
+    display: flex;
+    flex-direction: row;
+
+}
+
+.Part1 {
+    width: 700px;
+}
+
+.excelTypeList {
+    font-family: 'Roboto', sans-serif;
+    height: 240px;
+}
+
+.selectionDescription {
+    color: #275d38;
+    font-size: 30px;
+    font-weight: 400;
+
+    margin-bottom: 30px;
+}
+
+.radioPart {
+    display: flex;
+    flex-direction: row;
+
+    margin-bottom: 40px;
+}
+
+.projectTypes, .fileTypes {
+    margin-right: 60px;
+}
+
+.projectType, .subType{
+    height: 30px;
+}
+
+.fileTypesVisualizer {
+    width: 250px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.subtypeVisualizer {
+    width: calc(50%);
+    box-sizing: border-box;
+    margin-bottom: 10px;
+}
+
+.typeName, .subTypeName {
+    font-size: 17px;
+}
+
+input[type='radio'] {
+    cursor: pointer;
+}
+
+.fileSelectionPart {
+    width: 600px;
+    height: 300px;
+
+    border: #275d38 dashed;
+    border-radius: 8px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    font-family: Arial, serif;
+    color: #275d38;
+    font-size: 22px;
+    font-weight: lighter;
+
+    cursor: pointer;
+}
+
+.xlsImage {
+    max-height: 25%;
+    max-width: 25%;
+    width: auto;
+    height: auto;
+
+    margin-bottom: 20px;
+}
+
+.Part2 {
+    margin-left: 80px;
+
+    font-family: 'Roboto', sans-serif;
+}
+
+.upload {
+    display: flex;
+    flex-direction: row;
+}
+
+.fileLists {
+    width: 500px;
+    max-height: 300px; /* 或者其他你需要的高度 */
+    overflow-y: auto;
+
+    border: 1.5px darkgray solid;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+
+    margin-left: 10px;
+}
+
+.button {
+    width: 100px;
+    height: 40px;
+
+    margin-bottom: 10px;
+
+    cursor: pointer;
+}
+
+.indivFile {
+    cursor: pointer;
+    height: 30px;
+    display: flex;
+    align-items: center;
+
+    padding-left: 10px;
+}
+
+.indivFile:hover {
+    background-color: #cccccc;
+}
+
+.consoleWindow {
+    height: 200px;
+    width: 580px;
+    background-color: #f5f5f5;
+    color: #333;
+    border-radius: 5px;
+    padding: 10px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+
+    margin-top: 30px;
+}
+
+.consoleWindow::-webkit-scrollbar {
+    width: 8px;
+}
+
+.consoleWindow::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.consoleWindow::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+.consoleWindow::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.log {
+    height: 15px;
 }
 
 .footer {
@@ -42,12 +214,7 @@
     height: 140px;
     display: flex;
     justify-content: center;
-
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-
+    width: 100%;
     margin-top: auto;
 }
 
