@@ -37,6 +37,40 @@
     margin-left: 25px;
 }
 
+.tabWrapper {
+    display: flex;
+    flex-direction: row;
+
+    margin-right: 10%;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    vertical-align: middle;
+}
+
+.tabButton{
+    margin-right: 30px;
+    padding-bottom: 4px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.tabButton1 {
+    margin-left: 185px;
+    margin-right: 30px;
+    padding-bottom: 4px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.tabHeader {
+    box-shadow: 0px 6px 6px rgba(0, 0, 0, 0.2);
+
+    vertical-align: middle;
+    position: relative;
+}
+
 .DBWrapper {
     width: 80%;
     margin: 0 auto 50px auto;
@@ -145,7 +179,7 @@ input[type='radio'] {
 
 .fileLists {
     width: 500px;
-    max-height: 300px; /* 或者其他你需要的高度 */
+    max-height: 300px;
     overflow-y: auto;
 
     border: 1.5px darkgray solid;
@@ -246,4 +280,63 @@ input[type='radio'] {
     color: whitesmoke;
     font-size: 10px;
     text-align: right;
+}
+
+.helpInstruction {
+    width: 80%;
+    margin: 0 auto 0 auto;
+
+    font-family: 'Roboto', sans-serif;
+}
+
+.instructionContent {
+    margin-top: -30px;
+    line-height: 2;
+
+    margin-bottom: 40px;
+}
+
+.roughDescription {
+    color: darkred;
+    font-weight: 550;
+    font-size: 20px;
+}
+
+.Part1Title {
+    color: #275d38;
+    font-size: 30px;
+    font-weight: 400;
+}
+
+.steps {
+    color: #275d38;
+    font-size: 18px;
+}
+
+.helpImage {
+    width: 60%;
+    height: 60%;
+}
+
+.deleteConsoleImage {
+    width: 40%;
+    height: 40%;
+}
+
+.notice {
+    font-weight: 600;
+    color: darkred;
+}
+
+.lastStep {
+    font-size: 18px;
+    color: darkred;
+    font-weight: 550;
+    margin-bottom: 20px;
+}
+
+.LASTstep {
+    margin-top: 15px;
+    color: #275d38;
+    font-size: 18px;
 }

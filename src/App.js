@@ -2,6 +2,10 @@ import './App.css';
 import {useEffect, useRef, useState} from "react";
 import axios from "axios";
 
+
+/**
+ * header component: use to display the logo and project name
+ * */
 const Header = () => {
 
     return (
@@ -17,6 +21,40 @@ const Header = () => {
     );
 };
 
+/**
+ * TabHeader component: used to switch between import and help page
+ * */
+const TabHeader = (props) => {
+
+    const tabButtons = props.tabs.map((tab, index) => {
+
+        const className = index === 0 ? 'tabButton1' : 'tabButton';
+
+        return (
+            <div
+                className={className}
+                onClick={() => {
+                    props.setTab(index);
+                }}
+                style={{
+                    borderBottom: index === props.tabIndex ? '2px solid' : 'none',
+                }}
+            >
+                {tab}
+            </div>
+        )
+    });
+
+    return (
+        <div className='tabWrapper'>
+            {tabButtons}
+        </div>
+    )
+}
+
+/**
+ * PageTitle component: use to display the page title
+ * */
 const PageTitle = () => {
     return (
         <div style={{
@@ -32,6 +70,27 @@ const PageTitle = () => {
     );
 }
 
+/**
+ * HelpPageTitle component: use to display the help page title
+ * */
+const HelpPageTitle = () => {
+    return (
+        <div style={{
+            margin: "25px auto 40px auto",
+            color: "#275d38",
+            fontSize: "53px",
+            fontFamily: "'Roboto', sans-serif",
+            fontWeight: "300"
+        }}>
+            Instruction
+        </div>
+    );
+}
+
+
+/**
+ * Component used to select the file type of the import files
+ * */
 const ExcelTypeList = (props) => {
 
     const excelTypeMap = new Map([
@@ -49,6 +108,9 @@ const ExcelTypeList = (props) => {
         props.setSelectedFileType(fileType);
     }
 
+    /**
+     * Two main types: Visualizer and Scheduler
+     * */
     const types = Array.from(excelTypeMap.keys()).map((key) => {
         const defaultCheck = key === 'Visualizer';
 
@@ -70,6 +132,10 @@ const ExcelTypeList = (props) => {
         props.setSelectedFileType(excelTypeMap.get(props.selectedProject).at(0));
     }, [props.selectedProject])
 
+
+    /**
+     * Subtypes of Visualizer and Scheduler
+     * */
     const subTypeList = excelTypeMap.get(props.selectedProject);
     const subTypes = subTypeList.map((subType) => {
         const checked = subType === props.selectedFileType;
@@ -104,6 +170,9 @@ const ExcelTypeList = (props) => {
     )
 }
 
+/**
+ * Upload and delete files component
+ * */
 const Upload = (props) => {
 
     const [selectedTags, setSelectedTags] = useState([]);
@@ -192,7 +261,7 @@ const Upload = (props) => {
             .then(response => {
                 const message = response.data.obj;
                 const log = loadingLog;
-                log.push(filetype + " data uploads successfully");
+                log.push(filetype + " data upload is complete");
                 log.push("---------------------------------------------------------------------------------------------------------------------------------");
                 props.setLog(log);
             })
@@ -262,11 +331,14 @@ const Upload = (props) => {
             uploadedFiles.push(tag);
         }
 
-        // remove uploaded files
+        // remove uploaded files after upload finished
         const remainingFiles = allFiles.filter(file => !uploadedFiles.includes(file.name));
         props.setSelectedFiles(remainingFiles);
     }
 
+    /**
+     * upload all the files
+     * */
     const handleUploadAllOnClick = (project, fileType, files) => {
         for (let i = 0; i < files.length; i++) {
             const formData = new FormData();
@@ -339,6 +411,9 @@ const Upload = (props) => {
     )
 }
 
+/**
+ * Component used to display the operation results
+ * */
 const Console = (props) => {
     const endRef = useRef(null);
 
@@ -360,6 +435,59 @@ const Console = (props) => {
     )
 }
 
+const Instruction = () => {
+
+    return (
+        <div className='instructionContent'>
+            <b className='Part1Title'>Part 1: Visualizer Data Import</b>
+            <div className='roughDescription'>The following example will demonstrate how to update the data of the visualizer for the upcoming year.</div>
+            <div className='steps'>Step One: Delete the old data</div>
+            <div>Open the database import tool, select the visualizer option and click on delete button (The deletion feature doesn't require selecting a specific program.)</div>
+            <img alt="delete" src="img.png" className="helpImage"/>
+            <div>The deletion is complete when the information below is displayed in the console.</div>
+            <img alt="delete" src="img_1.png" className="deleteConsoleImage"/>
+
+            <div className='steps'>Step Two: Delete the old data</div>
+            <div>Inside the 'NOBES_W2023_COOP/Program_Visualizer/Website Excel Files', download one of these folders.</div>
+            <img alt="folder" src="folder.png" className="helpImage"/>
+            <div>Unzip the zip files and check:<div className='notice'>1. All files are in xls format. 2. There are a total of three types of files, one for each: course info, course category, and sequence.</div>
+            Select visualizer and the same program as subtype, and then select these 3 files
+            </div>
+            <img alt="selection" src="img_3.png" className="helpImage"/>
+            <div>Select the file you want to upload and click 'Upload,' or directly click 'Upload All' to upload all files. (See selected files information in console window)</div>
+            <img alt="selection" src="img_2.png" className="helpImage"/>
+            <div>The data import is complete when the information below is displayed in the console.</div>
+            <img alt="delete" src="img_4.png" className="deleteConsoleImage"/>
+            <div className='lastStep'>Repeat Step Two for the rest of the programs</div>
+
+            <b className='Part1Title'>Part 2: Scheduler Data Import</b>
+            <div className='roughDescription'>The following example will demonstrate how to update the data of the scheduler for the upcoming year.</div>
+            <div className='steps'>Scheduler Course Information Data import:</div>
+            <div>Delete old data: Open the database import tool, <span style={{ color: 'red' }}>select the scheduler, course Info</span> and click on delete button (Same process as Part 1: Step One)</div>
+            <div>Inside the 'NOBES_W2023_COOP/Program_Visualizer/TIMETABLES' folder, there are several subfolders, each representing a faculty. Download all the Excel files from each of these subfolders. <span style={{ color: 'red',  fontWeight: '500'}}>(All the files need to be in .xls)</span></div>
+            <img alt="selection" src="img_5.png" className="helpImage"/>
+            <div>Select scheduler and course Info as subtype, then select all the files you downloaded</div>
+            <img alt="selection" src="img_7.png" className="helpImage"/>
+            <div>Select the file you want to upload and click 'Upload,' or directly click 'Upload All' to upload all files. (See selected files information in console window)</div>
+            <img alt="selection" src="img_8.png" className="helpImage"/>
+            <div>The data import is complete when successful information is displayed in the console. </div>
+
+            <div className='LASTstep'>Scheduler Accreditation Units Data import:</div>
+            <div>Delete old data: Open the database import tool, <span style={{ color: 'red' }}>select the scheduler, course Info</span> and click on delete button (Same process as Part 1: Step One)</div>
+            <div>Inside the 'NOBES_W2023_COOP/Program_Visualizer/Website Excel Files' folder, download AU_Count.xls. <span style={{ color: 'red',  fontWeight: '500'}}>(Make sure it is in .xls)</span></div>
+            <img alt="selection" src="img_9.png" className="helpImage"/>
+            <div>Select scheduler and Accreditation Units as subtype, then select the AU file you downloaded</div>
+            <img alt="selection" src="img_10.png" className="helpImage"/>
+            <div>Click 'Upload,' or 'Upload All' to upload that file.</div>
+            <div>The data import is complete when successful information is displayed in the console.</div>
+        </div>
+    )
+}
+
+
+/**
+ * footer component
+ * */
 const Footer = () => {
 
     return (
@@ -382,6 +510,8 @@ function App() {
     // states for the 'SELECT FILE TYPE'
     const [selectedProject, setSelectedProject] = useState('Visualizer');
     const [selectedFileType, setSelectedFileType] = useState(null);
+    const tabs = ['Import', 'Help'];
+    const [tabIndex, setTabIndex] = useState(0);
 
     // states for data import
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -422,42 +552,62 @@ function App() {
         <div className='all'>
             <Header/>
 
-            <PageTitle/>
-
-            <div className='DBWrapper'>
-                <div className='Part1'>
-                    <ExcelTypeList selectedProject={selectedProject} selectedFileType={selectedFileType}
-                                   setSelectedProject={setSelectedProject} setSelectedFileType={setSelectedFileType}
-                    />
-                    <div
-                        className='fileSelectionPart'
-                        onClick={handleOnClick}
-                    >
-                        <img src='xls.png' className='xlsImage'/>
-                        Select a XLS file to import
-                    </div>
-                    <input
-                        type="file" // specify the type
-                        ref={fileInput} // be used to manipulate the hidden tag
-                        multiple='true' // allow multiple file selection
-                        accept=".xls" // only accept xls
-                        style={{display: "none"}} // hide this tag
-                        onChange={handleSelectedFile}
-                    />
-                </div>
-
-                <div className='Part2'>
-                    <Upload
-                        selectedFiles={selectedFiles}
-                        setSelectedFiles={setSelectedFiles}
-                        log={log}
-                        setLog={setLog}
-                        selectedProject={selectedProject}
-                        selectedFileType={selectedFileType}
-                    />
-                    <Console log={log}/>
-                </div>
+            <div className='tabHeader' >
+                <TabHeader tabs={tabs}
+                           tabIndex={tabIndex}
+                           setTab={setTabIndex}
+                />
             </div>
+
+            {tabIndex === 0 && (
+                <div>
+                    <PageTitle/>
+
+                    <div className='DBWrapper'>
+                        <div className='Part1'>
+                            <ExcelTypeList selectedProject={selectedProject} selectedFileType={selectedFileType}
+                                           setSelectedProject={setSelectedProject} setSelectedFileType={setSelectedFileType}
+                            />
+                            <div
+                                className='fileSelectionPart'
+                                onClick={handleOnClick}
+                            >
+                                <img src='xls.png' className='xlsImage'/>
+                                Select a XLS file to import
+                            </div>
+                            <input
+                                type="file" // specify the type
+                                ref={fileInput} // be used to manipulate the hidden tag
+                                multiple='true' // allow multiple file selection
+                                accept=".xls" // only accept xls
+                                style={{display: "none"}} // hide this tag
+                                onChange={handleSelectedFile}
+                            />
+                        </div>
+
+                        <div className='Part2'>
+                            <Upload
+                                selectedFiles={selectedFiles}
+                                setSelectedFiles={setSelectedFiles}
+                                log={log}
+                                setLog={setLog}
+                                selectedProject={selectedProject}
+                                selectedFileType={selectedFileType}
+                            />
+                            <Console log={log}/>
+                        </div>
+                    </div>
+
+                </div>
+            )}
+
+            {tabIndex === 1 && (
+                <div className='helpInstruction'>
+                    <HelpPageTitle />
+
+                    <Instruction />
+                </div>
+            )}
 
             <Footer/>
 
