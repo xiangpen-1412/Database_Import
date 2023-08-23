@@ -35,11 +35,9 @@ const PageTitle = () => {
 const ExcelTypeList = (props) => {
 
     const excelTypeMap = new Map([
-        ['Visualizer', ['Course Info', 'Sequence', 'Course Category', 'Graduate Attributes']],
+        ['Visualizer', ['Petroleum', 'Mining', 'Mechatronics', 'MECE', 'Materials', 'Engg Physics', 'Electrical', 'Computer', 'Civil', 'Chemical']],
         ['Scheduler', ['Course Info', 'Accreditation Units']],
     ])
-
-    const programList = ['Petroleum', 'Mining', 'Mechatronics', 'MECE', 'Materials', 'Engg Physics', 'Electrical', 'Computer', 'Civil', 'Chemical'];
 
     const handleOnChange = (projectType) => {
         if (projectType !== props.selectedProject) {
@@ -49,10 +47,6 @@ const ExcelTypeList = (props) => {
 
     const handleFileOnChange = (fileType) => {
         props.setSelectedFileType(fileType);
-    }
-
-    const handleProgramOnChange = (program) => {
-        props.setSelectedProgram(program);
     }
 
     const types = Array.from(excelTypeMap.keys()).map((key) => {
@@ -76,12 +70,12 @@ const ExcelTypeList = (props) => {
         props.setSelectedFileType(excelTypeMap.get(props.selectedProject).at(0));
     }, [props.selectedProject])
 
-
     const subTypeList = excelTypeMap.get(props.selectedProject);
     const subTypes = subTypeList.map((subType) => {
         const checked = subType === props.selectedFileType;
+        const className = props.selectedProject === 'Visualizer' ? 'subtypeVisualizer' : 'subType';
         return (
-            <div className='subType'>
+            <div className={className}>
                 <input
                     type='radio'
                     name='subType'
@@ -93,39 +87,6 @@ const ExcelTypeList = (props) => {
         )
     })
 
-    useEffect(() => {
-        if (props.selectedFileType === 'Sequence') {
-            props.setSelectedProgram(programList[0]);
-        }
-    }, [props.selectedFileType])
-
-    let programsDiv;
-    if (props.selectedFileType === 'Sequence') {
-
-        const programDivs = programList.map((program) => {
-            const isSelected = program === props.selectedProgram;
-            return (
-                <div className='subtypeVisualizer'>
-                    <input
-                        type='radio'
-                        name='subProgramType'
-                        checked={isSelected}
-                        onChange={() => handleProgramOnChange(program)}
-                    />
-                    <span className='subTypeName'>{program}</span>
-                </div>
-            )
-        })
-
-        programsDiv = (
-            <div className='fileTypesVisualizer'>
-                {programDivs}
-            </div>
-        )
-    } else {
-        programsDiv = null;
-    }
-
     return (
         <div className='excelTypeList'>
             <div className='selectionDescription'>
@@ -135,14 +96,9 @@ const ExcelTypeList = (props) => {
                 <div className='projectTypes'>
                     {types}
                 </div>
-                <div className='fileTypes'>
+                <div className='fileTypesVisualizer'>
                     {subTypes}
                 </div>
-                {programsDiv && (
-                    <div>
-                        {programsDiv}
-                    </div>
-                )}
             </div>
         </div>
     )
@@ -155,7 +111,6 @@ const Upload = (props) => {
     const selectedFiles = props.selectedFiles;
     const selectedProject = props.selectedProject;
     const selectedFileType = props.selectedFileType;
-    const selectedProgram = props.selectedProgram;
 
     const files = props.selectedFiles.map((selectedFile, index) => {
 
@@ -218,22 +173,17 @@ const Upload = (props) => {
         props.setLog(log);
     }
 
-    // handle the data import http request
-    const handleHttpRequest = (url, formData) => {
+    /**
+     * handle the data import http request
+     *
+     * send different http request to update the database and update the log
+     * */
+    const handleHttpRequest = (url, formData, filetype) => {
+
+        // TODO: Need to be changed when the server host changes
+        const serverUrl = "http://129.128.215.39:1412";
         const generalUrl = "/nobes/timetable/core";
 
-        // 获取所有文件
-        const allFiles = [...props.selectedFiles];
-        let uploadedFiles = []; // store uploaded files
-
-        // get file name from formData
-        for (let pair of formData.entries()) {
-            if (pair[0] === 'file') {
-                uploadedFiles.push(pair[1].name);
-            }
-        }
-
-        // 添加 Loading... 到 log
         const loadingLog = [...props.log];
         loadingLog.push("Updating...");
         props.setLog(loadingLog);
@@ -242,13 +192,9 @@ const Upload = (props) => {
             .then(response => {
                 const message = response.data.obj;
                 const log = loadingLog;
-                log.push(message);
+                log.push(filetype + " data uploads successfully");
                 log.push("---------------------------------------------------------------------------------------------------------------------------------");
                 props.setLog(log);
-
-                // remove uploaded files
-                const remainingFiles = allFiles.filter(file => !uploadedFiles.includes(file.name));
-                props.setSelectedFiles(remainingFiles);
             })
             .catch(error => {
                 const errorMessage = "Error fetching data: " + error;
@@ -258,44 +204,47 @@ const Upload = (props) => {
     };
 
 
-    const handleFileUpload = (project, fileType, formData, program) => {
+    /**
+     * an intermediate function to send the http request
+     * */
+    const handleFileUpload = (project, fileType, formData) => {
         if (project === 'Visualizer') {
-            // visualizer sequence import
-            if (fileType === 'Sequence') {
-                formData.append('program', program);
-                handleHttpRequest('/sequenceImport', formData);
-            } else if (fileType === 'Course Info') {
-                handleHttpRequest('/visualizerCourseImport', formData);
-            } else if (fileType === 'Course Category') {
-                handleHttpRequest('/visualizerGroupImport', formData);
+            const file = formData.get('file');
+
+            if (file.name.toLowerCase().includes('sequen') || file.name.toLowerCase().includes('mechatronics_program_v')) {
+                formData.append('program', fileType);
+                handleHttpRequest('/sequenceImport', formData, fileType);
+            } else if (file.name.toLowerCase().includes('categories')) {
+                handleHttpRequest('/visualizerGroupImport', formData, fileType);
+            } else if (file.name.toLowerCase().includes('courses')) {
+                handleHttpRequest('/visualizerCourseImport', formData, fileType);
             } else {
                 return null;
             }
         } else if (project === 'Scheduler') {
             // scheduler course info import
             if (fileType === 'Course Info') {
-                handleHttpRequest('/timeTableImport', formData);
+                handleHttpRequest('/timeTableImport', formData, fileType);
             } else {
-                handleHttpRequest('/auImport', formData);
+                handleHttpRequest('/auImport', formData, fileType);
             }
         } else {
             return null;
         }
     }
 
-    const handleUploadOnClick = (project, fileType, files, selectedTags, program) => {
-        const formData = new FormData();
+    const handleUploadOnClick = (project, fileType, files, selectedTags) => {
         let isNull = true;
         for (let i = 0; i < files.length; i++) {
             if (selectedTags.includes(files[i].name)) {
-                formData.append('file', files[i]);
                 isNull = false;
+                const formData = new FormData();
+                formData.append('file', files[i]);
+                handleFileUpload(project, fileType, formData);
             }
         }
 
-        if (!isNull) {
-            handleFileUpload(project, fileType, formData, program);
-        } else {
+        if (isNull) {
             const newLog = [...props.log];
             newLog.push("Select a file to upload");
             newLog.push("---------------------------------------------------------------------------------------------------------------------------------");
@@ -303,24 +252,41 @@ const Upload = (props) => {
         }
 
         setSelectedTags([]);
-    }
 
-    const handleUploadAllOnClick = (project, fileType, files, program) => {
-        const formData = new FormData();
-        for (let i = 0; i < files.length; i++) {
-            formData.append('file', files[i]);
+        // get all files
+        const allFiles = [...props.selectedFiles];
+        let uploadedFiles = []; // store uploaded files
+
+        // get file name from formData
+        for (const tag in selectedTags) {
+            uploadedFiles.push(tag);
         }
 
-        handleFileUpload(project, fileType, formData, program);
-        setSelectedTags([]);
+        // remove uploaded files
+        const remainingFiles = allFiles.filter(file => !uploadedFiles.includes(file.name));
+        props.setSelectedFiles(remainingFiles);
     }
 
-    const handleDeleteHttpRequest = (url) => {
+    const handleUploadAllOnClick = (project, fileType, files) => {
+        for (let i = 0; i < files.length; i++) {
+            const formData = new FormData();
+            formData.append('file', files[i]);
+            handleFileUpload(project, fileType, formData);
+        }
+
+        setSelectedTags([]);
+        props.setSelectedFiles([]);
+    }
+
+    /**
+     * send truncate table http request
+     * */
+    const handleDeleteHttpRequest = (url, type) => {
         const generalUrl = "/nobes/timetable/core";
         axios.get(`${generalUrl}${url}`)
             .then(response => {
                 const log = [...props.log];
-                log.push("Truncate complete");
+                log.push(type + " truncate completes");
                 log.push("---------------------------------------------------------------------------------------------------------------------------------");
                 props.setLog(log);
             })
@@ -329,24 +295,21 @@ const Upload = (props) => {
             });
     }
 
+    /**
+     * truncate tables about selected file types
+     * */
     const handleTruncateClick = (project, fileType) => {
         if (project === 'Visualizer') {
-            // visualizer sequence import
-            if (fileType === 'Sequence') {
-                handleDeleteHttpRequest('/truncateSequence');
-            } else if (fileType === 'Course Info') {
-                handleDeleteHttpRequest('/truncateVisualizer');
-            } else if (fileType === 'Course Category') {
-                handleDeleteHttpRequest('/truncateCourseGroup');
-            } else {
-                return null;
-            }
+            // truncate all data about visualizer
+            handleDeleteHttpRequest('/truncateSequence', 'Visualizer data');
+            handleDeleteHttpRequest('/truncateVisualizer', 'Visualizer data');
+            handleDeleteHttpRequest('/truncateCourseGroup','Visualizer data');
         } else if (project === 'Scheduler') {
             // scheduler course info import
             if (fileType === 'Course Info') {
-                handleDeleteHttpRequest('/truncateTimetable');
+                handleDeleteHttpRequest('/truncateTimetable', 'Scheduler Course Info');
             } else {
-                handleDeleteHttpRequest('/truncateAU');
+                handleDeleteHttpRequest('/truncateAU', 'AU');
             }
         } else {
             return null;
@@ -362,14 +325,14 @@ const Upload = (props) => {
                 <button className='button' onClick={handleDeleteOnClick}>Delete</button>
                 <button className='button' onClick={handleDeleteAllOnClick}>Delete All</button>
                 <button className='button'
-                        onClick={() => handleUploadOnClick(selectedProject, selectedFileType, selectedFiles, selectedTags, selectedProgram)}>Upload
+                        onClick={() => handleUploadOnClick(selectedProject, selectedFileType, selectedFiles, selectedTags)}>Upload
                 </button>
                 <button className='button'
-                        onClick={() => handleUploadAllOnClick(selectedProject, selectedFileType, selectedFiles, selectedProgram)}>Upload
+                        onClick={() => handleUploadAllOnClick(selectedProject, selectedFileType, selectedFiles)}>Upload
                     All
                 </button>
                 <button className='button'
-                        onClick={() => handleTruncateClick(selectedProject, selectedFileType)}>Truncate
+                        onClick={() => handleTruncateClick(selectedProject, selectedFileType)}>Delete
                 </button>
             </div>
         </div>
@@ -386,13 +349,13 @@ const Console = (props) => {
     })
 
     useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: 'smooth' })
+        endRef.current?.scrollIntoView({behavior: 'smooth'})
     }, [props.log]);
 
     return (
         <div className='consoleWindow'>
             {logs}
-            <div ref={endRef} />
+            <div ref={endRef}/>
         </div>
     )
 }
@@ -419,7 +382,6 @@ function App() {
     // states for the 'SELECT FILE TYPE'
     const [selectedProject, setSelectedProject] = useState('Visualizer');
     const [selectedFileType, setSelectedFileType] = useState(null);
-    const [selectedProgram, setSelectedProgram] = useState(null);
 
     // states for data import
     const [selectedFiles, setSelectedFiles] = useState([]);
@@ -465,10 +427,8 @@ function App() {
             <div className='DBWrapper'>
                 <div className='Part1'>
                     <ExcelTypeList selectedProject={selectedProject} selectedFileType={selectedFileType}
-                                   selectedProgram={selectedProgram}
                                    setSelectedProject={setSelectedProject} setSelectedFileType={setSelectedFileType}
-                                   setSelectedProgram={setSelectedProgram}/>
-
+                    />
                     <div
                         className='fileSelectionPart'
                         onClick={handleOnClick}
@@ -494,7 +454,6 @@ function App() {
                         setLog={setLog}
                         selectedProject={selectedProject}
                         selectedFileType={selectedFileType}
-                        selectedProgram={selectedProgram}
                     />
                     <Console log={log}/>
                 </div>
